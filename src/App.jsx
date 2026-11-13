@@ -118,7 +118,7 @@ function Shell() {
         />
       )}
 
-      {labId && <Lab labId={labId} onClose={closeLab} />}
+      {labId && <Lab key={labId} labId={labId} onClose={closeLab} />}
     </div>
   )
 }

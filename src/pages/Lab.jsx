@@ -3,7 +3,7 @@ import { LABS } from '../data/labs.js'
 import { TOPICS } from '../data/topics.js'
 import { prettyEquation } from '../lib/chem.js'
 import { useApp } from '../lib/store.jsx'
-import { IconClose, IconFlask } from '../components/Icons.jsx'
+import { IconCheck, IconClose, IconFlask } from '../components/Icons.jsx'
 
 export default function LabPage({ labId, onClose }) {
   const app = useApp()
@@ -19,6 +19,7 @@ export default function LabPage({ labId, onClose }) {
   const [wrongSteps, setWrongSteps] = useState([])
   const [choiceIdx, setChoiceIdx] = useState(0)
   const [pickedOpt, setPickedOpt] = useState(null)
+  const [phenomena, setPhenomena] = useState([])
 
   const need = useMemo(() => lab?.apparatus.filter((a) => a.need).map((a) => a.id) || [], [lab])
   const shuffled = useMemo(() => {
@@ -37,7 +38,13 @@ export default function LabPage({ labId, onClose }) {
     import('../lab3d/scene.js')
       .then((m) => {
         if (!alive || !canvasRef.current) return
-        sceneRef.current = m.createLabScene(canvasRef.current, lab.scene || {})
+        sceneRef.current = m.createLabScene(canvasRef.current, {
+          ...(lab.scene || {}),
+          cam: lab.cam,
+          opacity: lab.opacity,
+          initialCloud: lab.initialCloud,
+          gasOpacity: lab.gasOpacity,
+        })
         setThreeReady(true)
       })
       .catch((e) => {
@@ -51,9 +58,14 @@ export default function LabPage({ labId, onClose }) {
     }
   }, [lab?.id])
 
+  useEffect(() => {
+    if (stage === 'done' && lab) app.markLabDone(lab.id)
+  }, [stage])
+
   if (!lab) return null
 
   const effect = (name) => sceneRef.current?.setEffect(name)
+  const doneBefore = Boolean(app.state.labsDone?.[lab.id])
 
   const toggle = (id) => {
     setErr('')
@@ -102,6 +114,8 @@ export default function LabPage({ labId, onClose }) {
     if (pickedOpt !== null) return
     setPickedOpt(idx)
     effect(opt.ok ? opt.effect || 'reset' : 'warn')
+    const ph = lab.phenomena?.find((p) => p.at === choiceIdx)
+    if (ph) setPhenomena((list) => (list.includes(ph.text) ? list : [...list, ph.text]))
     app.recordAttempt({
       id: `${lab.id}-c${choiceIdx}`,
       kind: 'q',
@@ -116,10 +130,10 @@ export default function LabPage({ labId, onClose }) {
     setPickedOpt(null)
     if (choiceIdx + 1 >= (lab.choices?.length || 0)) {
       setStage('done')
-      effect('reset')
+      effect('calm')
     } else {
       setChoiceIdx(choiceIdx + 1)
-      effect('reset')
+      effect('calm')
     }
   }
 
@@ -130,6 +144,7 @@ export default function LabPage({ labId, onClose }) {
     setWrongSteps([])
     setChoiceIdx(0)
     setPickedOpt(null)
+    setPhenomena([])
     setErr('')
     effect('reset')
   }
@@ -143,9 +158,15 @@ export default function LabPage({ labId, onClose }) {
         <div style={{ flex: 1, minWidth: 0 }}>
           <h2>{lab.title}</h2>
           <div className="sub">
-            {TOPICS[lab.topic]?.name} · {lab.level === 2 ? '3D 交互' : '步骤卡'} · {lab.minutes} 分钟
+            {TOPICS[lab.topic]?.name} · {lab.level === 2 ? '3D 交互' : '装置图解'} · {lab.minutes} 分钟
+            {doneBefore ? ' · 已练过' : ''}
           </div>
         </div>
+        {doneBefore && (
+          <span className="pill g" style={{ background: 'rgba(79,191,162,.16)', color: '#7fe0c4' }}>
+            <IconCheck width="12" height="12" /> 已完成
+          </span>
+        )}
       </div>
 
       <div className="stage">
@@ -155,21 +176,7 @@ export default function LabPage({ labId, onClose }) {
             <div className="hud">{threeReady ? '拖动可旋转视角' : '正在加载实验台…'}</div>
           </>
         ) : (
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              display: 'grid',
-              placeItems: 'center',
-              background:
-                'radial-gradient(80% 60% at 50% 20%, rgba(79,191,162,.18), transparent 70%), radial-gradient(60% 50% at 70% 80%, rgba(201,138,75,.14), transparent 70%)',
-            }}
-          >
-            <div style={{ textAlign: 'center', color: '#8fb3a2' }}>
-              <IconFlask width="56" height="56" style={{ opacity: 0.55 }} />
-              <div className="small mt8">{lab.goal}</div>
-            </div>
-          </div>
+          <LabDiagram kind={lab.diagram} />
         )}
       </div>
 
@@ -189,7 +196,11 @@ export default function LabPage({ labId, onClose }) {
                 </button>
               ))}
             </div>
-            {err && <p className="labnote" style={{ color: '#f0b7ab' }}>{err}</p>}
+            {err && (
+              <p className="labnote" style={{ color: '#f0b7ab' }}>
+                {err}
+              </p>
+            )}
             <button className="labbtn" onClick={confirmApparatus} disabled={!picked.length}>
               确认仪器（{picked.length}/{need.length}）
             </button>
@@ -215,7 +226,11 @@ export default function LabPage({ labId, onClose }) {
                 )
               })}
             </div>
-            {err && <p className="labnote" style={{ color: '#f0b7ab' }}>{err}</p>}
+            {err && (
+              <p className="labnote" style={{ color: '#f0b7ab' }}>
+                {err}
+              </p>
+            )}
             <p className="labnote">
               已完成 {seq.length}/{lab.order.length}
             </p>
@@ -243,7 +258,8 @@ export default function LabPage({ labId, onClose }) {
             {pickedOpt !== null && (
               <>
                 <p className="labnote">
-                  <b>{currentChoice.options[pickedOpt].ok ? '正确' : '错了'}</b>：{currentChoice.options[pickedOpt].result}
+                  <b>{currentChoice.options[pickedOpt].ok ? '正确' : '错了'}</b>：
+                  {currentChoice.options[pickedOpt].result}
                 </p>
                 <p className="labnote" style={{ opacity: 0.85 }}>
                   为什么：{currentChoice.why}
@@ -253,6 +269,14 @@ export default function LabPage({ labId, onClose }) {
                 </button>
               </>
             )}
+            {phenomena.length > 0 && (
+              <div className="labnote" style={{ marginTop: 12 }}>
+                <b>现象记录</b>
+                {phenomena.map((p, i) => (
+                  <div key={i}>· {p}</div>
+                ))}
+              </div>
+            )}
           </>
         )}
 
@@ -260,6 +284,16 @@ export default function LabPage({ labId, onClose }) {
           <>
             <h3>实验总结</h3>
             <div className="summary">
+              {phenomena.length > 0 && (
+                <>
+                  <h4>现象</h4>
+                  <ul>
+                    {phenomena.map((p, i) => (
+                      <li key={i}>{p}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
               {lab.equations?.length > 0 && (
                 <>
                   <h4>化学方程式</h4>
@@ -302,6 +336,68 @@ export default function LabPage({ labId, onClose }) {
           </>
         )}
       </div>
+    </div>
+  )
+}
+
+/* ---------------- 图解（非 3D 实验） ---------------- */
+
+function LabDiagram({ kind }) {
+  if (kind === 'distill') {
+    return (
+      <div className="diagram">
+        <svg viewBox="0 0 360 220" role="img" aria-label="蒸馏装置示意">
+          <defs>
+            <linearGradient id="liquid" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#7fb3e6" stopOpacity="0.55" />
+              <stop offset="100%" stopColor="#4f8fd0" stopOpacity="0.75" />
+            </linearGradient>
+            <linearGradient id="flame" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0%" stopColor="#ffb45c" stopOpacity="0.9" />
+              <stop offset="100%" stopColor="#ff6a3d" stopOpacity="0.2" />
+            </linearGradient>
+          </defs>
+
+          {/* 蒸馏烧瓶 */}
+          <circle cx="82" cy="140" r="30" fill="rgba(255,255,255,.03)" stroke="#7fa99a" strokeWidth="1.6" />
+          <path d="M70 112 v-26 h24 v26" fill="rgba(255,255,255,.03)" stroke="#7fa99a" strokeWidth="1.6" />
+          <path d="M56 148 a30 30 0 0 0 52 0 z" fill="url(#liquid)" />
+          <path d="M70 86 h24 v-16 h-24 z" fill="rgba(255,255,255,.03)" stroke="#7fa99a" strokeWidth="1.6" />
+
+          {/* 温度计 */}
+          <line x1="82" y1="46" x2="82" y2="80" stroke="#cfe3d6" strokeWidth="2.4" />
+          <circle cx="82" cy="46" r="4" fill="#d23c2f" />
+
+          {/* 支管 + 冷凝管 */}
+          <path d="M94 92 L210 66" stroke="#7fa99a" strokeWidth="9" strokeLinecap="round" opacity="0.35" />
+          <path d="M94 92 L210 66" stroke="#7fa99a" strokeWidth="1.6" />
+          <path d="M100 104 L214 78" stroke="#7fa99a" strokeWidth="9" strokeLinecap="round" opacity="0.25" />
+          <path d="M100 104 L214 78" stroke="#7fa99a" strokeWidth="1.4" />
+
+          {/* 冷却水 */}
+          <path d="M120 118 v10" stroke="#5fd0b0" strokeWidth="1.4" />
+          <path d="M196 52 v-10" stroke="#5fd0b0" strokeWidth="1.4" />
+          <text x="104" y="136" fill="#5fd0b0" fontSize="9">进水</text>
+          <text x="198" y="40" fill="#5fd0b0" fontSize="9">出水</text>
+
+          {/* 接收瓶 */}
+          <path d="M214 66 l14 34 h-30 z" fill="rgba(255,255,255,.03)" stroke="#7fa99a" strokeWidth="1.5" />
+          <path d="M205 92 h16 v8 h-16 z" fill="url(#liquid)" />
+          <text x="196" y="116" fill="#93a99c" fontSize="9">接收瓶</text>
+
+          {/* 加热 */}
+          <path d="M74 176 q8 -18 8 -26 q0 8 8 26 z" fill="url(#flame)" />
+          <rect x="66" y="176" width="32" height="8" rx="3" fill="#4a5652" />
+
+          <text x="24" y="206" fill="#7fa392" fontSize="10">温度计水银球在支管口</text>
+          <text x="196" y="206" fill="#7fa392" fontSize="10">冷凝水下进上出</text>
+        </svg>
+      </div>
+    )
+  }
+  return (
+    <div className="diagram">
+      <IconFlask width="56" height="56" style={{ opacity: 0.5 }} />
     </div>
   )
 }

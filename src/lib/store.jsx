@@ -27,6 +27,7 @@ export function defaultState() {
     days: {},
     reports: [],
     aiQuestions: [],
+    labsDone: {},
     meta: { createdAt: dateStr(), version: '1.0.0' },
   }
 }
@@ -89,6 +90,8 @@ function reducer(state, action) {
       return { ...state, settings: { ...state.settings, ai: { ...state.settings.ai, ...action.payload } } }
     case 'report':
       return { ...state, reports: [action.payload, ...state.reports].slice(0, 24) }
+    case 'labDone':
+      return { ...state, labsDone: { ...(state.labsDone || {}), [action.payload]: Date.now() } }
     case 'aiQuestion':
       return { ...state, aiQuestions: [action.payload, ...state.aiQuestions].slice(0, 200) }
     case 'reset':
@@ -121,12 +124,13 @@ export function AppProvider({ children }) {
   const setAi = useCallback((payload) => dispatch({ type: 'ai', payload }), [])
   const saveReport = useCallback((payload) => dispatch({ type: 'report', payload }), [])
   const addAiQuestion = useCallback((payload) => dispatch({ type: 'aiQuestion', payload }), [])
+  const markLabDone = useCallback((id) => dispatch({ type: 'labDone', payload: id }), [])
   const reset = useCallback(() => dispatch({ type: 'reset' }), [])
   const importState = useCallback((payload) => dispatch({ type: 'import', payload }), [])
 
   const api = useMemo(
-    () => ({ state, recordAttempt, setProfile, setAi, saveReport, addAiQuestion, reset, importState }),
-    [state, recordAttempt, setProfile, setAi, saveReport, addAiQuestion, reset, importState],
+    () => ({ state, recordAttempt, setProfile, setAi, saveReport, addAiQuestion, markLabDone, reset, importState }),
+    [state, recordAttempt, setProfile, setAi, saveReport, addAiQuestion, markLabDone, reset, importState],
   )
 
   return <Ctx.Provider value={api}>{children}</Ctx.Provider>

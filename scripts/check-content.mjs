@@ -3,6 +3,7 @@ import { QUESTIONS } from '../src/data/questions.js'
 import { CARDS } from '../src/data/cards.js'
 import { LABS } from '../src/data/labs.js'
 import { TOPICS } from '../src/data/topics.js'
+import { EFFECTS } from '../src/lab3d/effects.js'
 import { parseEquation, checkBalance } from '../src/lib/chem.js'
 
 const errors = []
@@ -50,8 +51,17 @@ function checkEq(eq, at) {
 for (const lab of LABS) {
   const at = lab.id || '(无 lab id)'
   if (!lab.id || !lab.title) errors.push(`${at}: 实验缺 id/标题`)
+  if (!TOPICS[lab.topic]) errors.push(`${at}: topic 非法 ${lab.topic}`)
   if (![1, 2].includes(lab.level)) errors.push(`${at}: level 非法`)
   if (lab.level === 2 && !lab.scene) errors.push(`${at}: L2 实验缺少 3D scene`)
+  if (lab.level === 1 && !lab.diagram) errors.push(`${at}: 图解实验缺少 diagram`)
+  if (lab.scene) {
+    if (!['conical', 'beaker', 'volumetric', 'tube'].includes(lab.scene.vessel)) {
+      errors.push(`${at}: scene.vessel 非法 ${lab.scene.vessel}`)
+    }
+    const f = lab.scene.fill
+    if (f !== undefined && (typeof f !== 'number' || f <= 0 || f >= 1)) errors.push(`${at}: scene.fill 越界`)
+  }
   if (!Array.isArray(lab.order) || lab.order.length < 3) errors.push(`${at}: 步骤太少`)
   const needIds = lab.apparatus.filter((a) => a.need).map((a) => a.id)
   if (!needIds.length) errors.push(`${at}: 没有必需仪器`)
@@ -60,10 +70,21 @@ for (const lab of LABS) {
     if (!Array.isArray(ch.options) || ch.options.length < 2 || ch.options.length > 4) {
       errors.push(`${at}: 选项数量应为 2~4`)
     }
-    if (!ch.options.some((o) => o.ok)) errors.push(`${at}: 该步没有正确选项`)
+    const oks = (ch.options || []).filter((o) => o.ok).length
+    if (oks !== 1) errors.push(`${at}: 每步应恰好一个正确选项（现在 ${oks} 个）`)
     if (!ch.why) errors.push(`${at}: 缺少 why`)
+    for (const o of ch.options || []) {
+      if (!o.text || !o.result) errors.push(`${at}: 选项缺少文案或后果`)
+      if (o.effect && !EFFECTS.includes(o.effect)) errors.push(`${at}: effect 非法 ${o.effect}`)
+    }
+  }
+  for (const p of lab.phenomena || []) {
+    if (!(p.at >= 0 && p.at < (lab.choices?.length || 0))) errors.push(`${at}: phenomena.at 越界`)
+    if (!p.text) errors.push(`${at}: phenomena 缺少文字`)
   }
   for (const eq of [...(lab.equations || []), ...(lab.ionic || [])]) checkEq(eq, at)
+  if (!lab.pitfalls?.length) errors.push(`${at}: 缺少 pitfalls`)
+  if (!lab.summary) errors.push(`${at}: 缺少 summary`)
 }
 
 console.log(`检查 ${QUESTIONS.length} 道选择题、${CARDS.length} 张卡片、${LABS.length} 个实验…`)

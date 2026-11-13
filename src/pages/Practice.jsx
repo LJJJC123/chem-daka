@@ -293,20 +293,35 @@ function AiBox() {
 }
 
 function LabPane({ onOpenLab }) {
+  const app = useApp()
+  const done = app.state.labsDone || {}
+  const n3d = LABS.filter((l) => l.level === 2).length
   return (
-    <div className="grid2">
-      {LABS.map((lab) => (
-        <button key={lab.id} className="tile" onClick={() => onOpenLab(lab.id)}>
-          <span className="ic" style={{ background: lab.level === 2 ? '#10231e' : 'var(--brand-soft)', color: lab.level === 2 ? '#5fd0b0' : 'var(--brand)' }}>
-            <IconFlask width="18" height="18" />
-          </span>
-          <b>{lab.title}</b>
-          <span>
-            {lab.level === 2 ? '3D 交互' : '步骤卡'} · {lab.minutes} 分钟
-          </span>
-        </button>
-      ))}
-    </div>
+    <>
+      <p className="small muted" style={{ margin: '2px 2px 10px' }}>
+        共 {LABS.length} 个实验 · {n3d} 个 3D 交互 · {LABS.length - n3d} 个装置图解
+      </p>
+      <div className="grid2">
+        {LABS.map((lab) => (
+          <button key={lab.id} className="tile" onClick={() => onOpenLab(lab.id)}>
+            <span
+              className="ic"
+              style={{
+                background: lab.level === 2 ? '#10231e' : 'var(--brand-soft)',
+                color: lab.level === 2 ? '#5fd0b0' : 'var(--brand)',
+              }}
+            >
+              <IconFlask width="18" height="18" />
+            </span>
+            <b>{lab.title}</b>
+            <span>
+              {lab.level === 2 ? '3D 交互' : '装置图解'} · {lab.minutes} 分钟
+              {done[lab.id] ? ' · 已练过' : ''}
+            </span>
+          </button>
+        ))}
+      </div>
+    </>
   )
 }
 
