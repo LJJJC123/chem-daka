@@ -1,0 +1,27 @@
+{
+  "name": "chem-daka",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "化学打卡 —— 高二化学选考每日打卡与 3D 实验室",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:single": "vite build --config vite.single.config.js && node scripts/inline.mjs",
+    "preview": "vite preview",
+    "serve:dist": "node scripts/serve.mjs",
+    "api": "node server/proxy.mjs",
+    "check:eq": "node scripts/check-equations.mjs",
+    "check:content": "node scripts/check-equations.mjs && node scripts/check-content.mjs",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "three": "^0.187.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.1.2",
+    "vite": "^8.3.5"
+  }
+}
