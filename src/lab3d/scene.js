@@ -319,17 +319,17 @@ export function createLabScene(canvas, config = {}) {
     const zncu = config.electrodes === 'zncu'
     const mk = (x, color) => {
       const el = new THREE.Mesh(
-        new THREE.BoxGeometry(0.035, 0.52, 0.12),
+        new THREE.BoxGeometry(0.042, 0.56, 0.13),
         new THREE.MeshStandardMaterial({ color, roughness: zncu ? 0.32 : 0.35, metalness: zncu ? 0.9 : 0.6 }),
       )
-      el.position.set(x, 0.42, 0)
+      el.position.set(x, 0.36, 0)
       el.castShadow = true
       group.add(el)
       const cap = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.016, 0.016, 0.34, 12),
-        new THREE.MeshStandardMaterial({ color: 0xd8c9a8, roughness: 0.4, metalness: 0.8 }),
+        new THREE.CylinderGeometry(0.008, 0.008, 0.3, 10),
+        new THREE.MeshStandardMaterial({ color: 0xc9c2b4, roughness: 0.35, metalness: 0.9 }),
       )
-      cap.position.set(x, 0.84, 0)
+      cap.position.set(x, 0.79, 0)
       group.add(cap)
       return el
     }

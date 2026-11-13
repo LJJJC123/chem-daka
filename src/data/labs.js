@@ -578,7 +578,7 @@ export const LABS = [
     level: 2,
     minutes: 5,
     cam: { y: 0.38, dist: 2.0 },
-    opacity: 0.3,
+    opacity: 0.45,
     goal: '观察两极现象，判断正负极、电子流向与电极反应。',
     scene: {
       vessel: 'beaker',
