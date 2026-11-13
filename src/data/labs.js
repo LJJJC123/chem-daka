@@ -86,7 +86,7 @@ export const LABS = [
     title: '沉淀的转化：AgCl → AgI',
     level: 2,
     minutes: 5,
-    cam: { y: 0.35, dist: 1.95 },
+    cam: { y: 0.38, dist: 2.3 },
     opacity: 0.55,
     initialCloud: 0.5,
     goal: '观察白色 AgCl 变黄色 AgI，理解沉淀向 Ksp 更小的方向转化。',
@@ -147,7 +147,7 @@ export const LABS = [
     title: '电解饱和食盐水',
     level: 2,
     minutes: 6,
-    cam: { y: 0.38, dist: 2.0 },
+    cam: { y: 0.4, dist: 2.35 },
     opacity: 0.34,
     goal: '观察阴阳极产物，会写电极反应式，理解氯碱工业。',
     scene: {
@@ -209,7 +209,7 @@ export const LABS = [
     title: '配制一定物质的量浓度的溶液',
     level: 2,
     minutes: 5,
-    cam: { y: 0.45, dist: 2.3 },
+    cam: { y: 0.48, dist: 2.5 },
     opacity: 0.72,
     goal: '掌握配制 100 mL 0.100 mol·L⁻¹ NaCl 溶液的完整步骤。',
     scene: { vessel: 'volumetric', fill: 0.72, vesselColor: '#cfe3f7', endColor: '#c6dcf2' },
@@ -266,7 +266,7 @@ export const LABS = [
     title: '中和反应反应热的测定',
     level: 2,
     minutes: 5,
-    cam: { y: 0.36, dist: 2.0 },
+    cam: { y: 0.4, dist: 2.3 },
     opacity: 0.34,
     goal: '理解量热计原理，会处理温度数据、判断误差来源。',
     scene: {
@@ -329,7 +329,7 @@ export const LABS = [
     title: '铁钉的吸氧腐蚀',
     level: 2,
     minutes: 5,
-    cam: { y: 0.45, dist: 2.0 },
+    cam: { y: 0.48, dist: 2.3 },
     opacity: 0.28,
     goal: '区分吸氧腐蚀与析氢腐蚀，会写正负极反应。',
     scene: {
@@ -390,7 +390,7 @@ export const LABS = [
     title: '氯气的制备与性质',
     level: 2,
     minutes: 6,
-    cam: { y: 0.42, dist: 2.35 },
+    cam: { y: 0.45, dist: 2.6 },
     opacity: 0.5,
     goal: '掌握实验室制氯气的装置、除杂顺序与尾气处理。',
     scene: {
@@ -451,7 +451,7 @@ export const LABS = [
     title: '氨气的制备与检验',
     level: 2,
     minutes: 5,
-    cam: { y: 0.45, dist: 2.2 },
+    cam: { y: 0.48, dist: 2.5 },
     opacity: 0.34,
     goal: '掌握固固加热制氨、干燥与验满方法。',
     scene: {
@@ -516,7 +516,7 @@ export const LABS = [
     title: '盐类水解的检验',
     level: 2,
     minutes: 4,
-    cam: { y: 0.35, dist: 1.95 },
+    cam: { y: 0.38, dist: 2.3 },
     opacity: 0.34,
     goal: '用 pH 试纸检验盐溶液的酸碱性，理解"谁弱谁水解"。',
     scene: {
@@ -577,7 +577,7 @@ export const LABS = [
     title: '锌铜原电池',
     level: 2,
     minutes: 5,
-    cam: { y: 0.38, dist: 2.0 },
+    cam: { y: 0.4, dist: 2.35 },
     opacity: 0.45,
     goal: '观察两极现象，判断正负极、电子流向与电极反应。',
     scene: {
@@ -639,14 +639,14 @@ export const LABS = [
     title: '电解 CuCl2 溶液',
     level: 2,
     minutes: 5,
-    cam: { y: 0.38, dist: 2.0 },
+    cam: { y: 0.4, dist: 2.35 },
     opacity: 0.6,
     goal: '观察阴阳极产物，理解放电顺序与电解池构成。',
     scene: {
       vessel: 'beaker',
       electrodes: true,
       fill: 0.56,
-      vesselColor: '#7fc39c',
+      vesselColor: '#6fbb8e',
       endColor: '#cfe0e8',
     },
     apparatus: [
@@ -700,7 +700,7 @@ export const LABS = [
     title: '影响反应速率的因素',
     level: 2,
     minutes: 5,
-    cam: { y: 0.38, dist: 1.95 },
+    cam: { y: 0.4, dist: 2.25 },
     opacity: 0.34,
     goal: '用 H2O2 分解观察浓度、温度、催化剂对速率的影响。',
     scene: {
@@ -759,13 +759,13 @@ export const LABS = [
     title: '制备四氨合铜配合物',
     level: 2,
     minutes: 5,
-    cam: { y: 0.35, dist: 1.95 },
+    cam: { y: 0.38, dist: 2.3 },
     opacity: 0.72,
     goal: '观察蓝色沉淀溶解为深蓝色溶液，理解配位键与配位数。',
     scene: {
       vessel: 'beaker',
       fill: 0.48,
-      vesselColor: '#8ec1e6',
+      vesselColor: '#6fa8d8',
       endColor: '#2f4fa0',
     },
     apparatus: [

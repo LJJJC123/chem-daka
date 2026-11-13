@@ -194,9 +194,9 @@ export function createLabScene(canvas, config = {}) {
   const liquidMat = new THREE.MeshPhysicalMaterial({
     color: new THREE.Color(config.vesselColor || '#dcefff'),
     metalness: 0,
-    roughness: 0.38,
+    roughness: 0.62,
     clearcoat: 0,
-    envMapIntensity: 0.32,
+    envMapIntensity: 0.22,
     transparent: true,
     opacity: config.opacity ?? 0.84,
     side: THREE.DoubleSide,
@@ -216,9 +216,9 @@ export function createLabScene(canvas, config = {}) {
 
   const surfaceMat = new THREE.MeshPhysicalMaterial({
     color: liquidMat.color,
-    roughness: 0.28,
+    roughness: 0.45,
     metalness: 0,
-    clearcoat: 0.2,
+    clearcoat: 0.1,
     transparent: true,
     opacity: Math.min(1, (config.opacity ?? 0.84) + 0.06),
     side: THREE.DoubleSide,
