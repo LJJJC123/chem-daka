@@ -13,6 +13,7 @@ import { rawToAssigned, assignedToRaw, gapToTarget } from '../src/lib/score.js'
 import { EQUATIONS } from '../src/data/equations.js'
 import { QUESTIONS } from '../src/data/questions.js'
 import { pickTasks, weekOf, addDays, daysBetween, dateStr } from '../src/lib/plan.js'
+import { weekProgress } from '../src/lib/selectors.js'
 
 test('解析化学式：元素、括号、电荷、配合物、结晶水', () => {
   assert.deepEqual(parseFormula('H2O').atoms, { H: 2, O: 1 })
@@ -146,4 +147,17 @@ test('展示：方程式转成下标上标', () => {
   assert.ok(c.includes('Fe³⁺'))
   assert.ok(prettySide('2H2 + O2').includes('H₂'))
   assert.equal(normalizeInput('2H2＋O2＝2H2O'), '2h2+o2=2h2o')
+})
+
+test('开始日期在未来时：周次不越界，能算出还有几天开始', () => {
+  const today = dateStr()
+  const state = { profile: { startDate: addDays(today, 2) }, days: {} }
+  const w = weekProgress(state)
+  assert.equal(w.week, 1)
+  assert.equal(w.elapsed, 0)
+  assert.equal(w.daysToStart, 2)
+
+  const started = { profile: { startDate: addDays(today, -14) }, days: {} }
+  assert.equal(weekProgress(started).week, 3)
+  assert.equal(weekProgress(started).daysToStart, 0)
 })

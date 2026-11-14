@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer } from 'react'
-import { dateStr } from './plan.js'
+import { addDays, dateStr } from './plan.js'
 
 const KEY = 'chem85:v1'
 const CORE_KINDS = ['eq', 'q', 'card']
@@ -9,7 +9,8 @@ export function defaultState() {
     v: 1,
     profile: {
       examDate: '2027-01-18',
-      startDate: dateStr(),
+      // 默认从明天开始，第一次打开就能直接用；可在设置里改成今天/后天
+      startDate: addDays(dateStr(), 1),
       dailyMinutes: 30,
       targetAssigned: 85,
     },

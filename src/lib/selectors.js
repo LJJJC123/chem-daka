@@ -105,9 +105,10 @@ export function estimateRaw(state, days = 10) {
 
 export function weekProgress(state) {
   const start = state.profile.startDate
-  const elapsed = Math.max(0, daysBetween(start, dateStr()))
-  const week = Math.min(8, Math.floor(elapsed / 7) + 1)
+  const rawDays = daysBetween(start, dateStr())
+  const elapsed = Math.max(0, rawDays)
+  const week = Math.max(1, Math.min(8, Math.floor(elapsed / 7) + 1))
   const conf = weekConf(week)
   const total = Object.keys(state.days).length
-  return { week, conf, elapsed, activeDays: total }
+  return { week, conf, elapsed, activeDays: total, daysToStart: Math.max(0, -rawDays) }
 }

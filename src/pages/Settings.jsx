@@ -5,6 +5,7 @@ import { QUESTIONS } from '../data/questions.js'
 import { CARDS } from '../data/cards.js'
 import { LABS } from '../data/labs.js'
 import { PROVIDERS, health, providerOf } from '../lib/ai.js'
+import { addDays, dateStr } from '../lib/plan.js'
 
 export default function Settings() {
   const app = useApp()
@@ -75,6 +76,34 @@ export default function Settings() {
         <h2>备考设置</h2>
       </div>
       <div className="card">
+        <label className="label">开始打卡日期</label>
+        <input
+          className="input"
+          type="date"
+          value={state.profile.startDate}
+          onChange={(e) => setProfile({ startDate: e.target.value })}
+        />
+        <div className="row mt8">
+          {[
+            ['今天', 0],
+            ['明天', 1],
+            ['后天', 2],
+          ].map(([label, n]) => {
+            const d = addDays(dateStr(), n)
+            return (
+              <button
+                key={label}
+                className={`btn sm ${state.profile.startDate === d ? '' : 'ghost'}`}
+                onClick={() => setProfile({ startDate: d })}
+                style={{ flex: 1 }}
+              >
+                {label}
+              </button>
+            )
+          })}
+        </div>
+        <p className="tiny muted mt8">8 周计划从这天算起；提前打开也能先练，打卡从这天开始计入。</p>
+
         <label className="label">期末日期</label>
         <input
           className="input"

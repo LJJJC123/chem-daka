@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useApp } from '../lib/store.jsx'
-import { dateStr, daysToExam, pickTasks } from '../lib/plan.js'
+import { dateStr, daysBetween, daysToExam, pickTasks } from '../lib/plan.js'
 import { streakOf } from '../lib/selectors.js'
 import { TOPICS } from '../data/topics.js'
 import { IconCard, IconFlask, IconRight, IconTarget } from '../components/Icons.jsx'
@@ -20,6 +20,9 @@ export default function Today({ onStart, onOpenLab }) {
 
   const left = daysToExam(state.profile.examDate, today)
   const week = tasks.week
+  const toStart = daysBetween(today, state.profile.startDate)
+  const startFuture = toStart > 0
+  const startLabel = state.profile.startDate.slice(5).replace('-', '/')
 
   const isEqDone = eqDone >= tasks.eqItems.length
   const isQDone = qDone >= tasks.qItems.length
@@ -59,6 +62,17 @@ export default function Today({ onStart, onOpenLab }) {
           </div>
         </div>
       </section>
+
+      {startFuture && (
+        <div className="card flat mt12" style={{ padding: '10px 14px' }}>
+          <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
+            <span className="pill b">计划 {startLabel} 开始</span>
+            <span className="small muted">
+              还有 {toStart} 天。今天想先热身也行，正式打卡从 {startLabel} 算起。
+            </span>
+          </div>
+        </div>
+      )}
 
       <div className="sec">
         <h2>今日一卡</h2>
@@ -127,13 +141,21 @@ export default function Today({ onStart, onOpenLab }) {
           </button>
         ) : (
           <button className="btn block" onClick={startAll}>
-            开始打卡（剩 {tasks.eqItems.length - Math.min(eqDone, tasks.eqItems.length) + tasks.qItems.length - Math.min(qDone, tasks.qItems.length) + (isCardDone ? 0 : 1)} 项）
+            {startFuture ? '先热身一组' : '开始打卡'}（剩{' '}
+            {tasks.eqItems.length -
+              Math.min(eqDone, tasks.eqItems.length) +
+              tasks.qItems.length -
+              Math.min(qDone, tasks.qItems.length) +
+              (isCardDone ? 0 : 1)}{' '}
+            项）
           </button>
         )}
       </div>
 
       <p className="tiny muted center mt12">
-        打卡只认三项：方程式、选择题、知识点卡。做不完可以暂停，明天接着来。
+        {startFuture
+          ? `正式打卡从 ${startLabel} 开始；今天练的也会记进错题，不会浪费。`
+          : '打卡只认三项：方程式、选择题、知识点卡。做不完可以暂停，明天接着来。'}
       </p>
     </div>
   )
